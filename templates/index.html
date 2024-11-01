@@ -199,7 +199,8 @@
 
     <script>
       let currentPlayingVideo = null; // Track the currently playing video
-
+       
+      let videoQueue = []; // Queue to manage videos
       window.onload = function () {
         const savedUrl = localStorage.getItem("playlistUrl");
         const savedVideos = localStorage.getItem("videos");
@@ -277,51 +278,74 @@
       }
 
       function displayVideos(videos) {
-        const videosDiv = document.getElementById("videos");
-        videosDiv.innerHTML = "";
+    const videosDiv = document.getElementById("videos");
+    videosDiv.innerHTML = "";
+    videoQueue = videos; // Store videos in a queue for easy access
 
-        videos.forEach((video) => {
-          const videoDiv = document.createElement("div");
-          videoDiv.className = "video";
+    videos.forEach((video, index) => {
+      const videoDiv = document.createElement("div");
+      videoDiv.className = "video";
+      videoDiv.dataset.index = index; // Store index for the video
+      videoDiv.dataset.videoId = video.videoId;
 
-          // Store the thumbnail HTML in a data attribute
-          videoDiv.dataset.thumbnailHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode, '${video.videoId}', '${video.title}')">
-            <h3>${video.title}</h3>
-          `;
+      videoDiv.dataset.thumbnailHTML = `
+        <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode)">
+        <h3>${video.title}</h3>
+      `;
 
-          videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
-          videosDiv.appendChild(videoDiv);
-        });
-      }
+      videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
+      videosDiv.appendChild(videoDiv);
+    });
+  }
 
-      function loadIframe(videoDiv, videoId, title) {
-        // Reset the previous video to show its thumbnail
-        if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-          currentPlayingVideo.innerHTML =
-            currentPlayingVideo.dataset.thumbnailHTML;
+  function loadIframe(videoDiv) {
+    // Reset previous video
+    if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
+      currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
+    }
+
+    const videoId = videoDiv.dataset.videoId;
+    const title = videoDiv.querySelector("h3").textContent;
+
+    // Create iframe with autoplay enabled
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    iframe.width = "100%";
+    iframe.height = "180px";
+    iframe.frameBorder = "0";
+    iframe.allowFullscreen = true;
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+
+    // Load iframe into the selected div
+    videoDiv.innerHTML = `<h3>${title}</h3>`;
+    videoDiv.appendChild(iframe);
+    currentPlayingVideo = videoDiv;
+
+    // Set up 'play next' when video ends
+    iframe.addEventListener("load", () => {
+      const player = new YT.Player(iframe, {
+        events: {
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.ENDED) {
+              playNextVideo(videoDiv);
+            }
+          }
         }
+      });
+    });
+  }
 
-        videoDiv.innerHTML = `<h3>${title}</h3>`;
-        const iframe = document.createElement("iframe");
-        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-        iframe.width = "100%";
-        iframe.height = "180px";
-        iframe.frameBorder = "0";
-        iframe.allowFullscreen = true;
-        iframe.allow =
-          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"; // Allow PiP and Fullscreen
+  function playNextVideo(currentDiv) {
+    const currentIndex = parseInt(currentDiv.dataset.index);
+    const nextIndex = currentIndex + 1;
 
-        iframe.onerror = function () {
-          videoDiv.innerHTML = `
-            <h3>${title}</h3>
-            <p>Video unavailable for embedding. <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">Watch on YouTube</a></p>
-        `;
-        };
-
-        videoDiv.appendChild(iframe);
-        currentPlayingVideo = videoDiv; // Set the new videoDiv as the current playing video
-      }
+    if (nextIndex < videoQueue.length) {
+      const nextVideoDiv = document.querySelector(`[data-index="${nextIndex}"]`);
+      if (nextVideoDiv) loadIframe(nextVideoDiv); // Load next video
+    } else {
+      alert("Reached end of playlist.");
+    }
+  }
 
       // Scroll to Top Functionality
       function scrollToTop() {

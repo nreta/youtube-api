@@ -135,7 +135,7 @@
         top: 20px;
         right: 20px;
         padding: 10px 15px;
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.1);
         color: black;
         border: none;
         border-radius: 50px;
@@ -301,13 +301,20 @@
         }
       }
 
-      function playNextVideo(currentDiv) {
+     function playNextVideo(currentDiv) {
         const currentIndex = parseInt(currentDiv.dataset.index);
         const nextIndex = currentIndex + 1;
 
         if (nextIndex < videoQueue.length) {
           const nextVideoDiv = document.querySelector(`[data-index="${nextIndex}"]`);
-          if (nextVideoDiv) loadIframe(nextVideoDiv);
+          if (nextVideoDiv) {
+            loadIframe(nextVideoDiv);
+            // Explicitly start playing the next video
+            const nextVideoId = nextVideoDiv.dataset.videoId;
+            if (players[nextVideoId]) {
+              players[nextVideoId].playVideo();  // Start playing the next video immediately
+            }
+          }
         } else {
           alert("Reached end of playlist.");
         }

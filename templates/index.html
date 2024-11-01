@@ -1,336 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YouTube Playlist and Search Demo</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        background-color: black;
-      }
-
-      .container {
-        width: 90%;
-        max-width: 800px;
-        padding: 10px;
-        margin: 20px auto;
-      }
-
-      h1 {
-        font-size: 24px;
-        margin: 20px 0;
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      #videos {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 50px;
-        padding: 10px;
-        border-radius: 10px;
-        justify-items: center;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.6);
-      }
-
-      @media (min-width: 768px) {
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: black;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            padding: 10px;
+            margin: 20px auto;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 20px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
         #videos {
-          grid-template-columns: repeat(2, 1fr);
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 50px;
+            padding: 10px;
+            border-radius: 10px;
+            justify-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
         }
-      }
-
-      @media (min-width: 1024px) {
-        #videos {
-          grid-template-columns: repeat(4, 1fr);
+        @media (min-width: 768px) {
+            #videos {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-      }
-
-      .video {
-        border: 1px solid #ddd;
-        padding: 10px;
-        width: 100%;
-        max-width: 220px;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border-radius: 8px;
-        background-color: rgba(0, 0, 0, 0.5);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .video:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      iframe,
-      img {
-        width: 100%;
-        height: 120px;
-        padding-top: 20px;
-        border-radius: 8px;
-      }
-
-      #loading {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 24px;
-        color: #3498db;
-      }
-
-      .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        display: inline-block;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
+        @media (min-width: 1024px) {
+            #videos {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
-        100% {
-          transform: rotate(360deg);
+        .video {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 100%;
+            max-width: 220px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-      }
-
-      input[type="text"],
-      button {
-        width: 90%;
-        max-width: 600px;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        font-size: 16px;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: rgba(255, 255, 255, 0.6);
-      }
-
-      button {
-        font-weight: bold;
-        background-color: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        transition: background-color 0.3s, box-shadow 0.3s;
-      }
-
-      button:hover {
-        background-color: rgba(80, 0, 0, 0.7);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      #scrollToTop {
-        display: none;
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 10px 15px;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: black;
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
-      }
-
-      #scrollToTop:hover {
-        background-color: rgba(80, 0, 0, 0.7);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-      #host-btn{
-      background-color: rgba(80, 0, 0, 0.7);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
+        .video:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        iframe, img {
+            width: 100%;
+            height: 120px;
+            padding-top: 20px;
+            border-radius: 8px;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #3498db;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        input[type="text"], button {
+            width: 90%;
+            max-width: 600px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.6);
+        }
+        button {
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: rgba(80, 0, 0, 0.7);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        #scrollToTop {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        #scrollToTop:hover {
+            background-color: rgba(80, 0, 0, 0.7);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        #host-btn {
+            background-color: rgba(80, 0, 0, 0.7);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
     </style>
-    <script src="https://www.youtube.com/iframe_api"></script> <!-- Load YouTube Iframe API -->
-  </head>
-  <body>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
     <div class="container">
-      <h1>YouTube Playlist Viewer🎥</h1>
-      <input type="text" id="playlistUrl" placeholder="Enter YouTube Playlist URL" />
-      <button onclick="fetchPlaylist()">Load Playlist</button>
-
-      <input type="text" id="searchQuery" placeholder="Enter video search keywords" />
-      <button onclick="searchVideo()">Search Video</button>
-
-      <button id="host-btn">Start A Streem</button>
-      <div id="loading">
-        <div class="spinner"></div>
-        <span>Loading...</span>
-      </div>
-
-      <div id="videos"></div>
-
-      <span id="scrollToTop" onclick="scrollToTop()">Top</span>
+        <h1>YouTube Playlist Viewer 🎥</h1>
+        <input type="text" id="playlistUrl" placeholder="Enter YouTube Playlist URL" />
+        <button onclick="fetchPlaylist()">Load Playlist</button>
+        <input type="text" id="searchQuery" placeholder="Enter video search keywords" />
+        <button onclick="searchVideo()">Search Video</button>
+        <button id="host-btn">Start A Stream</button>
+        <div id="loading">
+            <div class="spinner"></div>
+            <span>Loading...</span>
+        </div>
+        <div id="videos"></div>
+        <span id="scrollToTop" onclick="scrollToTop()">Top</span>
     </div>
 
     <script>
-      let currentPlayingVideo = null;
-      let videoQueue = [];
-      let players = {};
+        let currentPlayingVideo = null;
+        let videoQueue = [];
+        let players = {};
 
-      window.onload = function () {
-        const savedUrl = localStorage.getItem("playlistUrl");
-        const savedVideos = localStorage.getItem("videos");
+        window.onload = function () {
+            const savedUrl = localStorage.getItem("playlistUrl");
+            const savedVideos = localStorage.getItem("videos");
 
-        if (savedUrl) {
-          document.getElementById("playlistUrl").value = savedUrl;
-        }
-
-        if (savedVideos) {
-          displayVideos(JSON.parse(savedVideos));
-        }
-
-        window.onscroll = function () {
-          const scrollToTopButton = document.getElementById("scrollToTop");
-          if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-            scrollToTopButton.style.display = "block";
-          } else {
-            scrollToTopButton.style.display = "none";
-          }
-        };
-      };
-
-      function showLoading() {
-        document.getElementById("loading").style.display = "block";
-      }
-
-      function hideLoading() {
-        document.getElementById("loading").style.display = "none";
-      }
-
-      async function fetchPlaylist() {
-        showLoading();
-        const playlistUrl = document.getElementById("playlistUrl").value;
-        const response = await fetch("/api/get_playlist", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ playlist_url: playlistUrl }),
-        });
-
-        hideLoading();
-
-        if (response.ok) {
-          const videos = await response.json();
-          displayVideos(videos);
-        } else {
-          alert("Failed to fetch playlist. Please check the URL.");
-        }
-      }
-
-      async function searchVideo() {
-        showLoading();
-        const searchQuery = document.getElementById("searchQuery").value;
-        const response = await fetch("/api/search_video", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ query: searchQuery }),
-        });
-
-        hideLoading();
-
-        if (response.ok) {
-          const videos = await response.json();
-          displayVideos(videos);
-        } else {
-          alert("Failed to search for videos.");
-        }
-      }
-
-     function displayVideos(videos) {
-        const videosDiv = document.getElementById("videos");
-        videosDiv.innerHTML = "";
-        videoQueue = videos;
-
-        videos.forEach((video, index) => {
-          const videoDiv = document.createElement("div");
-          videoDiv.className = "video";
-          videoDiv.dataset.index = index;
-          videoDiv.dataset.videoId = video.videoId;
-
-          videoDiv.dataset.thumbnailHTML = 
-            <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode)">
-            <h3>${video.title}</h3>
-          ;
-
-          videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
-          videosDiv.appendChild(videoDiv);
-        });
-      }
-
-      function loadIframe(videoDiv) {
-        // Reset previously playing video to thumbnail view
-        if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-          currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
-        }
-
-        const videoId = videoDiv.dataset.videoId;
-        const title = videoDiv.querySelector("h3").textContent;
-
-        videoDiv.innerHTML = <h3>${title}</h3>;
-        const iframe = document.createElement("div");
-        iframe.id = player-${videoId};
-        videoDiv.appendChild(iframe);
-
-        players[videoId] = new YT.Player(iframe.id, {
-          videoId: videoId,
-          events: {
-            onStateChange: onPlayerStateChange
-          },
-          playerVars: {
-            autoplay: 1,
-            controls: 1
-          }
-        });
-
-        currentPlayingVideo = videoDiv;
-      }
-
-      function onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.ENDED) {
-          playNextVideo(currentPlayingVideo);
-        }
-      }
-
-      function playNextVideo(currentDiv) {
-        const currentIndex = parseInt(currentDiv.dataset.index);
-        const nextIndex = currentIndex + 1;
-
-        if (nextIndex < videoQueue.length) {
-          const nextVideoDiv = document.querySelector([data-index="${nextIndex}"]);
-          if (nextVideoDiv) {
-            loadIframe(nextVideoDiv);
-            // Explicitly start playing the next video
-            const nextVideoId = nextVideoDiv.dataset.videoId;
-            if (players[nextVideoId]) {
-              players[nextVideoId].playVideo();  // Start playing the next video immediately
+            if (savedUrl) {
+                document.getElementById("playlistUrl").value = savedUrl;
             }
-          }
-        } else {
-          alert("Reached end of playlist.");
+
+            if (savedVideos) {
+                displayVideos(JSON.parse(savedVideos));
+            }
+
+            window.onscroll = function () {
+                const scrollToTopButton = document.getElementById("scrollToTop");
+                if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                    scrollToTopButton.style.display = "block";
+                } else {
+                    scrollToTopButton.style.display = "none";
+                }
+            };
+        };
+
+        function showLoading() {
+            document.getElementById("loading").style.display = "block";
         }
-      }
 
+        function hideLoading() {
+            document.getElementById("loading").style.display = "none";
+        }
 
-      function scrollToTop() {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }
+        async function fetchPlaylist() {
+            showLoading();
+            const playlistUrl = document.getElementById("playlistUrl").value;
+            const response = await fetch("/api/get_playlist", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ playlist_url: playlistUrl }),
+            });
+
+            hideLoading();
+
+            if (response.ok) {
+                const videos = await response.json();
+                displayVideos(videos);
+            } else {
+                alert("Failed to fetch playlist. Please check the URL.");
+            }
+        }
+
+        async function searchVideo() {
+            showLoading();
+            const searchQuery = document.getElementById("searchQuery").value;
+            const response = await fetch("/api/search_video", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query: searchQuery }),
+            });
+
+            hideLoading();
+
+            if (response.ok) {
+                const videos = await response.json();
+                displayVideos(videos);
+            } else {
+                alert("Failed to search for videos.");
+            }
+        }
+
+        function displayVideos(videos) {
+            const videosDiv = document.getElementById("videos");
+            videosDiv.innerHTML = "";
+            videoQueue = videos;
+
+            videos.forEach(video => {
+                const videoDiv = document.createElement("div");
+                videoDiv.classList.add("video");
+                videoDiv.dataset.videoId = video.id;
+                videoDiv.dataset.thumbnailHTML = `<img src="${video.thumbnail}" alt="${video.title}" />`;
+                videoDiv.innerHTML += `<h3>${video.title}</h3>`;
+                videoDiv.innerHTML += `<button onclick="loadIframe(this.parentNode)">Watch</button>`;
+                videosDiv.appendChild(videoDiv);
+            });
+
+            localStorage.setItem("videos", JSON.stringify(videos));
+        }
+
+        function loadIframe(videoDiv) {
+            // Reset previously playing video to thumbnail view
+            if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
+                currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
+            }
+
+            const videoId = videoDiv.dataset.videoId;
+            const title = videoDiv.querySelector("h3").textContent;
+
+            videoDiv.innerHTML = `<h3>${title}</h3>`;
+            const iframe = document.createElement("div");
+            iframe.id = `player-${videoId}`;
+            videoDiv.appendChild(iframe);
+
+            players[videoId] = new YT.Player(iframe.id, {
+                videoId: videoId,
+                events: {
+                    onStateChange: onPlayerStateChange
+                },
+                playerVars: {
+                    autoplay: 1,
+                    controls: 1,
+                    mute: 1 // Ensure the video starts unmuted
+                }
+            });
+
+            currentPlayingVideo = videoDiv; // Keep track of the currently playing video
+            unmuteVideo(videoId); // Call the unmute function
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                // If the video ended, you could auto play the next video or handle end state here
+            }
+        }
+
+        function unmuteVideo(videoId) {
+            if (players[videoId]) {
+                players[videoId].unMute();
+
+                const intervalId = setInterval(() => {
+                    const playStatus = players[videoId].getPlayerState();
+                    const muteStatus = players[videoId].isMuted(); // Check if the video is muted
+
+                    // Check if the video is playing and unmuted
+                    if (playStatus === YT.PlayerState.PLAYING && !muteStatus) {
+                        clearInterval(intervalId); // Stop checking if video is playing and unmuted
+                    } else {
+                        players[videoId].playVideo(); // Attempt to play again if not playing
+                        if (muteStatus) {
+                            players[videoId].unMute(); // Attempt to unmute if muted
+                        }
+                    }
+                }, 1000); // Check every second
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
-  </body>
+</body>
 </html>

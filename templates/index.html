@@ -286,47 +286,50 @@
       }
 
       function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.ENDED) {
-          // Automatically load the next video if one exists in the queue
-          const currentVideoIndex = currentPlayingVideo.dataset.index;
-          const nextVideoIndex = parseInt(currentVideoIndex) + 1;
+  if (event.data == YT.PlayerState.ENDED) {
+    // Automatically load the next video if one exists in the queue
+    const currentVideoIndex = parseInt(currentPlayingVideo.dataset.index);
+    const nextVideoIndex = currentVideoIndex + 1;
 
-          if (nextVideoIndex < videoQueue.length) {
-            loadIframe(videoQueue[nextVideoIndex]);
-          } else {
-            currentPlayingVideo = null; // Reset when all videos are done
-          }
-        }
-      }
+    if (nextVideoIndex < videoQueue.length) {
+      const nextVideoDiv = document.querySelector(`.video[data-index='${nextVideoIndex}']`);
+      loadIframe(nextVideoDiv);
+    } else {
+      currentPlayingVideo = null; // Reset when all videos are done
+    }
+  }
+}
 
-      function loadIframe(videoDiv) {
-        // Reset previously playing video to thumbnail view
-        if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-          currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
-        }
 
-        const videoId = videoDiv.dataset.videoId;
-        const title = videoDiv.querySelector("h3").textContent;
+    
+function loadIframe(videoDiv) {
+  // Reset previously playing video to thumbnail view
+  if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
+    currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
+  }
 
-        videoDiv.innerHTML = `<h3>${title}</h3>`;
-        const iframe = document.createElement("div");
-        iframe.id = `player-${videoId}`;
-        videoDiv.appendChild(iframe);
+  const videoId = videoDiv.dataset.videoId;
+  const title = videoDiv.querySelector("h3").textContent;
 
-        players[videoId] = new YT.Player(iframe.id, {
-          videoId: videoId,
-          events: {
-            onStateChange: onPlayerStateChange,
-          },
-          playerVars: {
-            autoplay: 1,
-            controls: 1
-          },
-        });
+  videoDiv.innerHTML = `<h3>${title}</h3>`;
+  const iframe = document.createElement("div");
+  iframe.id = `player-${videoId}`;
+  videoDiv.appendChild(iframe);
 
-        currentPlayingVideo = videoDiv; // Keep track of the currently playing video
-        unmuteVideo(videoId);
-      }
+  players[videoId] = new YT.Player(iframe.id, {
+    videoId: videoId,
+    events: {
+      onStateChange: onPlayerStateChange,
+    },
+    playerVars: {
+      autoplay: 1,
+      controls: 1
+    },
+  });
+
+  currentPlayingVideo = videoDiv; // Keep track of the currently playing video
+  unmuteVideo(videoId);
+}
 
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });

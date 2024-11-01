@@ -267,6 +267,7 @@
       }
 
       function loadIframe(videoDiv) {
+        // Reset previously playing video to thumbnail view
         if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
           currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
         }
@@ -282,19 +283,22 @@
         players[videoId] = new YT.Player(iframe.id, {
           videoId: videoId,
           events: {
-            onStateChange: (event) => {
-              if (event.data === YT.PlayerState.ENDED) {
-                playNextVideo(videoDiv);
-              }
-            }
+            onStateChange: onPlayerStateChange
           },
           playerVars: {
             autoplay: 1,
-            controls: 1
+            controls: 1,
+            mute: 1  // Mute the video to help it autoplay
           }
         });
 
         currentPlayingVideo = videoDiv;
+      }
+
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+          playNextVideo(currentPlayingVideo);
+        }
       }
 
       function playNextVideo(currentDiv) {

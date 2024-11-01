@@ -146,13 +146,12 @@
         background-color: rgba(80, 0, 0, 0.7);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
-
-      #host-btn {
-        background-color: rgba(80, 0, 0, 0.7);
+      #host-btn{
+      background-color: rgba(80, 0, 0, 0.7);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
     </style>
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://www.youtube.com/iframe_api"></script> <!-- Load YouTube Iframe API -->
   </head>
   <body>
     <div class="container">
@@ -163,7 +162,7 @@
       <input type="text" id="searchQuery" placeholder="Enter video search keywords" />
       <button onclick="searchVideo()">Search Video</button>
 
-      <button id="host-btn">Start A Stream</button>
+      <button id="host-btn">Start A Streem</button>
       <div id="loading">
         <div class="spinner"></div>
         <span>Loading...</span>
@@ -251,7 +250,7 @@
         }
       }
 
-      function displayVideos(videos) {
+     function displayVideos(videos) {
         const videosDiv = document.getElementById("videos");
         videosDiv.innerHTML = "";
         videoQueue = videos;
@@ -262,51 +261,14 @@
           videoDiv.dataset.index = index;
           videoDiv.dataset.videoId = video.videoId;
 
-          videoDiv.dataset.thumbnailHTML = `
+          videoDiv.dataset.thumbnailHTML = 
             <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode)">
             <h3>${video.title}</h3>
-          `;
+          ;
 
           videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
           videosDiv.appendChild(videoDiv);
         });
-      }
-
-      function unmuteVideo(videoId) {
-    if (players[videoId]) {
-        players[videoId].unMute();
-        
-        const intervalId = setInterval(() => {
-            const playStatus = players[videoId].getPlayerState();
-            const muteStatus = players[videoId].isMuted(); // Check if the video is muted
-
-            // Check if the video is playing and unmuted
-            if (playStatus === YT.PlayerState.PLAYING && !muteStatus) {
-                clearInterval(intervalId); // Stop checking if video is playing and unmuted
-            } else {
-                players[videoId].playVideo(); // Attempt to play again if not playing
-                if (muteStatus) {
-                    players[videoId].unMute(); // Attempt to unmute if muted
-                }
-            }
-        }, 1000); // Check every second
-    }
-}
-
-
-
-      function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.ENDED) {
-          // Automatically load the next video if one exists in the queue
-          const currentVideoIndex = currentPlayingVideo.dataset.index;
-          const nextVideoIndex = parseInt(currentVideoIndex) + 1;
-
-          if (nextVideoIndex < videoQueue.length) {
-            loadIframe(videoQueue[nextVideoIndex]);
-          } else {
-            currentPlayingVideo = null; // Reset when all videos are done
-          }
-        }
       }
 
       function loadIframe(videoDiv) {
@@ -318,29 +280,57 @@
         const videoId = videoDiv.dataset.videoId;
         const title = videoDiv.querySelector("h3").textContent;
 
-        videoDiv.innerHTML = `<h3>${title}</h3>`;
+        videoDiv.innerHTML = <h3>${title}</h3>;
         const iframe = document.createElement("div");
-        iframe.id = `player-${videoId}`;
+        iframe.id = player-${videoId};
         videoDiv.appendChild(iframe);
 
         players[videoId] = new YT.Player(iframe.id, {
           videoId: videoId,
           events: {
-            onStateChange: onPlayerStateChange,
+            onStateChange: onPlayerStateChange
           },
           playerVars: {
             autoplay: 1,
-            controls: 1
-          },
+            controls: 1,
+            mute: 0
+          }
         });
 
-        currentPlayingVideo = videoDiv; // Keep track of the currently playing video
-        unmuteVideo(videoId);
-
+        currentPlayingVideo = videoDiv;
       }
 
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+          playNextVideo(currentPlayingVideo);
+        }
+      }
+
+      function playNextVideo(currentDiv) {
+        const currentIndex = parseInt(currentDiv.dataset.index);
+        const nextIndex = currentIndex + 1;
+
+        if (nextIndex < videoQueue.length) {
+          const nextVideoDiv = document.querySelector([data-index="${nextIndex}"]);
+          if (nextVideoDiv) {
+            loadIframe(nextVideoDiv);
+            // Explicitly start playing the next video
+            const nextVideoId = nextVideoDiv.dataset.videoId;
+            if (players[nextVideoId]) {
+              players[nextVideoId].playVideo();  // Start playing the next video immediately
+            }
+          }
+        } else {
+          alert("Reached end of playlist.");
+        }
+      }
+
+
       function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
       }
     </script>
   </body>

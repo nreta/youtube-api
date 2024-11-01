@@ -273,24 +273,31 @@
       }
 
       function unmuteVideo(videoId) {
-        if (players[videoId]) {
-          players[videoId].unMute();
-          players[videoId].playVideo();
-          
-          const intervalId = setInterval(() => {
+    if (players[videoId]) {
+        players[videoId].unMute();
+        players[videoId].playVideo();
+        
+        const intervalId = setInterval(() => {
             const playStatus = players[videoId].getPlayerState();
-            if (playStatus === YT.PlayerState.PLAYING) {
-              clearInterval(intervalId); // Stop checking if video is playing
+            const muteStatus = players[videoId].isMuted(); // Check if the video is muted
+
+            // Check if the video is playing and unmuted
+            if (playStatus === YT.PlayerState.PLAYING && !muteStatus) {
+                clearInterval(intervalId); // Stop checking if video is playing and unmuted
             } else {
-              players[videoId].playVideo(); // Attempt to play again if not playing
+                players[videoId].playVideo(); // Attempt to play again if not playing
+                if (muteStatus) {
+                    players[videoId].unMute(); // Attempt to unmute if muted
+                }
             }
-          }, 1000); // Check every second
-        }
-      }
+        }, 1000); // Check every second
+    }
+}
+
 
       function onPlayerStateChange(event) {
-        // Continuously play the video
-        if (event.data === YT.PlayerState.ENDED) {
+        if (event.data == YT.PlayerState.ENDED) {
+          // Automatically load the next video if one exists in the queue
           const currentVideoIndex = currentPlayingVideo.dataset.index;
           const nextVideoIndex = parseInt(currentVideoIndex) + 1;
 
@@ -330,6 +337,7 @@
 
         currentPlayingVideo = videoDiv; // Keep track of the currently playing video
         unmuteVideo(videoId);
+
       }
 
       function scrollToTop() {
@@ -338,5 +346,3 @@
     </script>
   </body>
 </html>
-
-

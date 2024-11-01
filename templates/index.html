@@ -152,7 +152,6 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
     </style>
-    <script src="https://www.youtube.com/iframe_api"></script>
   </head>
   <body>
     <div class="container">
@@ -177,7 +176,6 @@
     <script>
       let currentPlayingVideo = null;
       let videoQueue = [];
-      let players = {};
 
       window.onload = function () {
         const savedUrl = localStorage.getItem("playlistUrl");
@@ -263,7 +261,7 @@
           videoDiv.dataset.videoId = video.videoId;
 
           videoDiv.dataset.thumbnailHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode)">
+            <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe('${video.videoId}', '${video.title}')">
             <h3>${video.title}</h3>
           `;
 
@@ -272,64 +270,23 @@
         });
       }
 
-      function unmuteVideo(videoId) {
-        if (players[videoId]) {
-          players[videoId].unMute();
-
-          const intervalId = setInterval(() => {
-            const playStatus = players[videoId].playVideo();
-            if (playStatus === 1) {
-              clearInterval(intervalId); // Stop trying if the video starts playing
-            }
-          }, 1000); // Check every second
+      function loadIframe(videoId, title) {
+        // Reset previously playing video to thumbnail view
+        if (currentPlayingVideo) {
+          currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
         }
+
+        currentPlayingVideo = document.querySelector(`.video[data-video-id='${videoId}']`);
+        const iframeHTML = `
+          <iframe
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+          <h3>${title}</h3>
+        `;
+        currentPlayingVideo.innerHTML = iframeHTML;
       }
-
-      function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.ENDED) {
-    // Automatically load the next video if one exists in the queue
-    const currentVideoIndex = parseInt(currentPlayingVideo.dataset.index);
-    const nextVideoIndex = currentVideoIndex + 1;
-
-    if (nextVideoIndex < videoQueue.length) {
-      const nextVideoDiv = document.querySelector(`.video[data-index='${nextVideoIndex}']`);
-      loadIframe(nextVideoDiv);
-    } else {
-      currentPlayingVideo = null; // Reset when all videos are done
-    }
-  }
-}
-
-
-    
-function loadIframe(videoDiv) {
-  // Reset previously playing video to thumbnail view
-  if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-    currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
-  }
-
-  const videoId = videoDiv.dataset.videoId;
-  const title = videoDiv.querySelector("h3").textContent;
-
-  videoDiv.innerHTML = `<h3>${title}</h3>`;
-  const iframe = document.createElement("div");
-  iframe.id = `player-${videoId}`;
-  videoDiv.appendChild(iframe);
-
-  players[videoId] = new YT.Player(iframe.id, {
-    videoId: videoId,
-    events: {
-      onStateChange: onPlayerStateChange,
-    },
-    playerVars: {
-      autoplay: 1,
-      controls: 1
-    },
-  });
-
-  currentPlayingVideo = videoDiv; // Keep track of the currently playing video
-  unmuteVideo(videoId);
-}
 
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });

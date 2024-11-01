@@ -262,74 +262,61 @@
           videoDiv.dataset.index = index;
           videoDiv.dataset.videoId = video.videoId;
 
-          videoDiv.dataset.thumbnailHTML = 
+          videoDiv.dataset.thumbnailHTML = `
             <img src="${video.thumbnail}" alt="${video.title}" style="cursor: pointer;" onclick="loadIframe(this.parentNode)">
             <h3>${video.title}</h3>
-          ;
+          `;
 
           videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
           videosDiv.appendChild(videoDiv);
         });
       }
 
-      function unmuteVideo(videoId) {
-        if (players[videoId]) {
-          players[videoId].unMute();
+     
 
-          const intervalId = setInterval(() => {
-            const playStatus = players[videoId].playVideo();
-            if (playStatus === 1) {
-              clearInterval(intervalId); // Stop trying if the video starts playing
-            }
-          }, 1000); // Check every second
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.ENDED) {
+          // Automatically load the next video if one exists in the queue
+          const currentVideoIndex = parseInt(currentPlayingVideo.dataset.index);
+          const nextVideoIndex = currentVideoIndex + 1;
+
+          if (nextVideoIndex < videoQueue.length) {
+            const nextVideoDiv = document.querySelector(`.video[data-index='${nextVideoIndex}']`);
+            loadIframe(nextVideoDiv);
+          } else {
+            currentPlayingVideo = null; // Reset when all videos are done
+          }
         }
       }
 
-      function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.ENDED) {
-    // Automatically load the next video if one exists in the queue
-    const currentVideoIndex = parseInt(currentPlayingVideo.dataset.index);
-    const nextVideoIndex = currentVideoIndex + 1;
+      function loadIframe(videoDiv) {
+        // Reset previously playing video to thumbnail view
+        if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
+          currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
+        }
 
-    if (nextVideoIndex < videoQueue.length) {
-      const nextVideoDiv = document.querySelector(.video[data-index='${nextVideoIndex}']);
-      loadIframe(nextVideoDiv);
-    } else {
-      currentPlayingVideo = null; // Reset when all videos are done
-    }
-  }
-}
+        const videoId = videoDiv.dataset.videoId;
+        const title = videoDiv.querySelector("h3").textContent;
 
+        videoDiv.innerHTML = `<h3>${title}</h3>`;
+        const iframe = document.createElement("div");
+        iframe.id = `player-${videoId}`;
+        videoDiv.appendChild(iframe);
 
-    
-function loadIframe(videoDiv) {
-  // Reset previously playing video to thumbnail view
-  if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-    currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
-  }
+        players[videoId] = new YT.Player(iframe.id, {
+          videoId: videoId,
+          events: {
+            onStateChange: onPlayerStateChange,
+          },
+          playerVars: {
+            autoplay: 1,
+            controls: 1
+          },
+        });
 
-  const videoId = videoDiv.dataset.videoId;
-  const title = videoDiv.querySelector("h3").textContent;
-
-  videoDiv.innerHTML = <h3>${title}</h3>;
-  const iframe = document.createElement("div");
-  iframe.id = player-${videoId};
-  videoDiv.appendChild(iframe);
-
-  players[videoId] = new YT.Player(iframe.id, {
-    videoId: videoId,
-    events: {
-      onStateChange: onPlayerStateChange,
-    },
-    playerVars: {
-      autoplay: 1,
-      controls: 1
-    },
-  });
-
-  currentPlayingVideo = videoDiv; // Keep track of the currently playing video
-  unmuteVideo(videoId);
-}
+        currentPlayingVideo = videoDiv; // Keep track of the currently playing video
+        
+      }
 
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });

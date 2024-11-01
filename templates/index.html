@@ -285,7 +285,9 @@
 
       function unmuteVideo(videoId) {
     if (players[videoId]) {
-      players[videoId].unMute();  // Unmute the video after the delay
+      players[videoId].unMute(); // Unmute the video after the delay
+     players[videoId].playVideo(); // Start playing the video
+      
     }
   }
 
@@ -318,7 +320,7 @@
     currentPlayingVideo = videoDiv;
 
     // Delay unmute for 2 seconds
-    setTimeout(() => unmuteVideo(videoId), 10000);
+    setTimeout(() => unmuteVideo(videoId), 3000);
   }
       function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {

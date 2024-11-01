@@ -173,19 +173,23 @@
       <span id="scrollToTop" onclick="scrollToTop()">Top</span>
     </div>
 
-    <script>
+   <script>
       let currentPlayingVideo = null;
       let videoQueue = [];
       let players = {};
 
       window.onload = function () {
         const savedUrl = localStorage.getItem("playlistUrl");
-        const savedVideos = localStorage.getItem("videos");
+        const savedQuery = localStorage.getItem("searchQuery");
 
         if (savedUrl) {
           document.getElementById("playlistUrl").value = savedUrl;
         }
+        if (savedQuery) {
+          document.getElementById("searchQuery").value = savedQuery;
+        }
 
+        const savedVideos = localStorage.getItem("videos");
         if (savedVideos) {
           displayVideos(JSON.parse(savedVideos));
         }
@@ -209,8 +213,11 @@
       }
 
       async function fetchPlaylist() {
-        showLoading();
         const playlistUrl = document.getElementById("playlistUrl").value;
+        
+        localStorage.setItem("playlistUrl", playlistUrl);
+
+        showLoading();
         const response = await fetch("/api/get_playlist", {
           method: "POST",
           headers: {
@@ -230,8 +237,11 @@
       }
 
       async function searchVideo() {
-        showLoading();
         const searchQuery = document.getElementById("searchQuery").value;
+        
+        localStorage.setItem("searchQuery", searchQuery);
+
+        showLoading();
         const response = await fetch("/api/search_video", {
           method: "POST",
           headers: {
@@ -250,7 +260,7 @@
         }
       }
 
-     function displayVideos(videos) {
+      function displayVideos(videos) {
         const videosDiv = document.getElementById("videos");
         videosDiv.innerHTML = "";
         videoQueue = videos;
@@ -269,10 +279,11 @@
           videoDiv.innerHTML = videoDiv.dataset.thumbnailHTML;
           videosDiv.appendChild(videoDiv);
         });
+
+        localStorage.setItem("videos", JSON.stringify(videos));
       }
 
       function loadIframe(videoDiv) {
-        // Reset previously playing video to thumbnail view
         if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
           currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
         }
@@ -288,15 +299,24 @@
         players[videoId] = new YT.Player(iframe.id, {
           videoId: videoId,
           events: {
+            onReady: () => unmutePlayer(videoId),
             onStateChange: onPlayerStateChange
           },
           playerVars: {
             autoplay: 1,
-            controls: 1
+            controls: 1,
+            mute: 1  // Start muted to autoplay on mobile
           }
         });
 
         currentPlayingVideo = videoDiv;
+      }
+
+      function unmutePlayer(videoId) {
+        // Unmute the video once it's ready to play
+        if (players[videoId]) {
+          players[videoId].unMute();
+        }
       }
 
       function onPlayerStateChange(event) {
@@ -313,17 +333,15 @@
           const nextVideoDiv = document.querySelector(`[data-index="${nextIndex}"]`);
           if (nextVideoDiv) {
             loadIframe(nextVideoDiv);
-            // Explicitly start playing the next video
             const nextVideoId = nextVideoDiv.dataset.videoId;
             if (players[nextVideoId]) {
-              players[nextVideoId].playVideo();  // Start playing the next video immediately
+              players[nextVideoId].playVideo();
             }
           }
         } else {
           alert("Reached end of playlist.");
         }
       }
-
 
       function scrollToTop() {
         window.scrollTo({

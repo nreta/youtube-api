@@ -283,42 +283,43 @@
         localStorage.setItem("videos", JSON.stringify(videos));
       }
 
-      function loadIframe(videoDiv) {
-        if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
-          currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
-        }
+      function unmuteVideo(videoId) {
+    if (players[videoId]) {
+      players[videoId].unMute();  // Unmute the video after the delay
+    }
+  }
 
-        const videoId = videoDiv.dataset.videoId;
-        const title = videoDiv.querySelector("h3").textContent;
+  function loadIframe(videoDiv) {
+    // Reset previously playing video to thumbnail view
+    if (currentPlayingVideo && currentPlayingVideo !== videoDiv) {
+      currentPlayingVideo.innerHTML = currentPlayingVideo.dataset.thumbnailHTML;
+    }
 
-        videoDiv.innerHTML = `<h3>${title}</h3>`;
-        const iframe = document.createElement("div");
-        iframe.id = `player-${videoId}`;
-        videoDiv.appendChild(iframe);
+    const videoId = videoDiv.dataset.videoId;
+    const title = videoDiv.querySelector("h3").textContent;
 
-        players[videoId] = new YT.Player(iframe.id, {
-          videoId: videoId,
-          events: {
-            onReady: () => unmutePlayer(videoId),
-            onStateChange: onPlayerStateChange
-          },
-          playerVars: {
-            autoplay: 1,
-            controls: 1,
-            mute: 1  // Start muted to autoplay on mobile
-          }
-        });
+    videoDiv.innerHTML = `<h3>${title}</h3>`;
+    const iframe = document.createElement("div");
+    iframe.id = `player-${videoId}`;
+    videoDiv.appendChild(iframe);
 
-        currentPlayingVideo = videoDiv;
+    players[videoId] = new YT.Player(iframe.id, {
+      videoId: videoId,
+      events: {
+        onStateChange: onPlayerStateChange
+      },
+      playerVars: {
+        autoplay: 1,
+        controls: 1,
+        mute: 1  // Initially mute the video to ensure autoplay on some devices
       }
+    });
 
-      function unmutePlayer(videoId) {
-        // Unmute the video once it's ready to play
-        if (players[videoId]) {
-          players[videoId].unMute();
-        }
-      }
+    currentPlayingVideo = videoDiv;
 
+    // Delay unmute for 2 seconds
+    setTimeout(() => unmuteVideo(videoId), 2000);
+  }
       function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {
           playNextVideo(currentPlayingVideo);

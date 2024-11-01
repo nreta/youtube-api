@@ -275,19 +275,22 @@
       function unmuteVideo(videoId) {
         if (players[videoId]) {
           players[videoId].unMute();
-
+          players[videoId].playVideo();
+          
           const intervalId = setInterval(() => {
-            const playStatus = players[videoId].playVideo();
-            if (playStatus === 1) {
-              clearInterval(intervalId); // Stop trying if the video starts playing
+            const playStatus = players[videoId].getPlayerState();
+            if (playStatus === YT.PlayerState.PLAYING) {
+              clearInterval(intervalId); // Stop checking if video is playing
+            } else {
+              players[videoId].playVideo(); // Attempt to play again if not playing
             }
           }, 1000); // Check every second
         }
       }
 
       function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.ENDED) {
-          // Automatically load the next video if one exists in the queue
+        // Continuously play the video
+        if (event.data === YT.PlayerState.ENDED) {
           const currentVideoIndex = currentPlayingVideo.dataset.index;
           const nextVideoIndex = parseInt(currentVideoIndex) + 1;
 
@@ -335,4 +338,5 @@
     </script>
   </body>
 </html>
+
 

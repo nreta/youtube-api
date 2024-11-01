@@ -311,14 +311,14 @@
       playerVars: {
         autoplay: 1,
         controls: 1,
-        mute: 1  // Initially mute the video to ensure autoplay on some devices
+        mute: 1  
       }
     });
 
     currentPlayingVideo = videoDiv;
 
     // Delay unmute for 2 seconds
-    setTimeout(() => unmuteVideo(videoId), 2000);
+    setTimeout(() => unmuteVideo(videoId), 10000);
   }
       function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {

@@ -146,6 +146,10 @@
         background-color: rgba(80, 0, 0, 0.7);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
+      #host-btn{
+      background-color: rgba(80, 0, 0, 0.7);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
     </style>
     <script src="https://www.youtube.com/iframe_api"></script> <!-- Load YouTube Iframe API -->
   </head>
@@ -158,6 +162,7 @@
       <input type="text" id="searchQuery" placeholder="Enter video search keywords" />
       <button onclick="searchVideo()">Search Video</button>
 
+      <button id="host-btn">Search Video</button>
       <div id="loading">
         <div class="spinner"></div>
         <span>Loading...</span>
@@ -245,7 +250,7 @@
         }
       }
 
-      function displayVideos(videos) {
+     function displayVideos(videos) {
         const videosDiv = document.getElementById("videos");
         videosDiv.innerHTML = "";
         videoQueue = videos;
@@ -301,7 +306,7 @@
         }
       }
 
-     function playNextVideo(currentDiv) {
+      function playNextVideo(currentDiv) {
         const currentIndex = parseInt(currentDiv.dataset.index);
         const nextIndex = currentIndex + 1;
 
@@ -319,6 +324,7 @@
           alert("Reached end of playlist.");
         }
       }
+
 
       function scrollToTop() {
         window.scrollTo({

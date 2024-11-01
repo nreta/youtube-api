@@ -275,7 +275,6 @@
       function unmuteVideo(videoId) {
     if (players[videoId]) {
         players[videoId].unMute();
-        players[videoId].playVideo();
         
         const intervalId = setInterval(() => {
             const playStatus = players[videoId].getPlayerState();
@@ -293,6 +292,7 @@
         }, 1000); // Check every second
     }
 }
+
 
 
       function onPlayerStateChange(event) {
@@ -330,8 +330,7 @@
           },
           playerVars: {
             autoplay: 1,
-            controls: 1,
-            mute: 1,
+            controls: 1
           },
         });
 
